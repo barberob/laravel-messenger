@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Message;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
+
     /**
      * Create a new controller instance.
      *
@@ -25,18 +27,37 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $users = User::all('id', 'name');
-        return view('home')->with('users', $users);
+        $users = User::all('id', 'name')->whereNotIn('id', Auth::id());
+        return view('pages.home')->with('users', $users);
     }
 
-    public function conversation($id)
+    public function conversation($receiver_id)
     {
-        $auth_id = Auth::id();
-        return view('conversation')->with('receiver_id', $id);
+        $receiver = User::findOrFail($receiver_id);
+        $sender_id = Auth::id();
+
+        $messages = Message::all()
+            ->whereIn('receiver_id', [$receiver->id, $sender_id])
+            ->whereIn('sender_id', [$receiver->id, $sender_id]);
+
+        return view('pages.conversation', [
+            'receiver' => $receiver,
+            'sender_id' => $sender_id,
+            'messages' => $messages
+        ]);
     }
 
     public function postAddMessage($receiver_id, Request $request)
     {
-        dd($request, $receiver_id);
+        $receiver_id = intval($receiver_id);
+        $sender_id = Auth::id();
+
+        Message::create([
+            'receiver_id' => $receiver_id,
+            'sender_id' => $sender_id,
+            'content' => $request->input('content')
+        ]);
+
+        return redirect()->route('conversation', ['receiver_id' => $receiver_id]);
     }
 }

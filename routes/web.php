@@ -20,8 +20,8 @@ use Illuminate\Support\Facades\Route;
 Auth::routes();
 
 Route::get('/', 'HomeController@index')->name('home');
-Route::get('/home', 'HomeController@index')->name('home');
+//Route::get('/home', 'HomeController@index')->name('home');
 
-Route::get('/conversation/{id}', 'HomeController@conversation')->name('conversation');
+Route::get('/conversation/{receiver_id}', 'HomeController@conversation')->name('conversation');
 
 Route::post('/message/add/{receiver_id}', 'HomeController@postAddMessage')->name('message_post_add');
