@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
-
     /**
      * Create a new controller instance.
      *
@@ -36,9 +35,10 @@ class HomeController extends Controller
         $receiver = User::findOrFail($receiver_id);
         $sender_id = Auth::id();
 
-        $messages = Message::all()
+        $messages = Message::with('sender')
             ->whereIn('receiver_id', [$receiver->id, $sender_id])
-            ->whereIn('sender_id', [$receiver->id, $sender_id]);
+            ->whereIn('sender_id', [$receiver->id, $sender_id])
+            ->get();
 
         return view('pages.conversation', [
             'receiver' => $receiver,
@@ -51,6 +51,10 @@ class HomeController extends Controller
     {
         $receiver_id = intval($receiver_id);
         $sender_id = Auth::id();
+
+        $this->validate($request, [
+            'content' => 'required',
+        ]);
 
         Message::create([
             'receiver_id' => $receiver_id,

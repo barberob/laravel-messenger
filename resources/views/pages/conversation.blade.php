@@ -6,8 +6,7 @@
     <div class="card mt-4">
         <div class="card-header">{{ $receiver->name }}</div>
     </div>
-    <div class="w-100 bg-white my-5 p-2">
-
+    <div class="w-100 bg-white my-5 p-3">
         @forelse($messages as $message)
             @if($message->sender->id == $sender_id)
                 <div class="ml-auto pt-3">
@@ -27,8 +26,11 @@
         @empty
             <h2>Pas encore de messages dans cette conversation</h2>
         @endforelse
-
     </div>
+
+    @if($errors->has('content'))
+        <div class="alert alert-danger">{{ $errors->first('content') }}</div>
+    @endif
 
     <form action="{{ route('message_post_add', ['receiver_id' => $receiver->id]) }}" method="post" class="d-flex flex-column justify-content-center">
         @csrf
